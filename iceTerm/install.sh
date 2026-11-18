@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 #
-# 🧊 iceTerm (冰端) 一键安装脚本
-# 支持: Android (Termux), Debian/Ubuntu, Arch, Alpine, macOS
+# iceTerm installer
+# Supports: Android (Termux), Debian/Ubuntu, Arch, Alpine, macOS
 #
 
 set -e
@@ -11,11 +11,11 @@ CYAN="\033[36m"
 YELLOW="\033[33m"
 RESET="\033[0m"
 
-echo -e "${CYAN}🧊 正在安装 iceTerm (冰端)...${RESET}"
+echo -e "${CYAN}[iceTerm] Installing iceTerm workstation...${RESET}"
 
-# 1. 检查 Python 3 环境
+# 1. Verify Python 3
 if ! command -v python3 >/dev/null 2>&1; then
-    echo -e "${YELLOW}检测到未安装 Python 3，正在尝试自动安装...${RESET}"
+    echo -e "${YELLOW}Python 3 not found. Attempting automatic installation...${RESET}"
     if [ -n "$PREFIX" ] && [ -d "$PREFIX" ]; then
         # Termux
         pkg update -y && pkg install -y python
@@ -26,15 +26,14 @@ if ! command -v python3 >/dev/null 2>&1; then
     elif command -v apk >/dev/null 2>&1; then
         apk add --no-cache python3
     else
-        echo "请先手动安装 Python 3！"
+        echo "Error: Python 3 must be installed manually."
         exit 1
     fi
 fi
 
-# 2. 确定安装路径
+# 2. Determine install path
 INSTALL_DIR=""
 if [ -n "$PREFIX" ] && [ -d "$PREFIX/bin" ]; then
-    # Termux 环境
     INSTALL_DIR="$PREFIX/bin"
 elif [ -w "/usr/local/bin" ]; then
     INSTALL_DIR="/usr/local/bin"
@@ -47,7 +46,7 @@ fi
 
 TARGET="$INSTALL_DIR/iceterm"
 
-# 3. 复制或下载
+# 3. Copy or download
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" >/dev/null 2>&1 && pwd)"
 if [ -f "$SCRIPT_DIR/ice_term.py" ]; then
     cp "$SCRIPT_DIR/ice_term.py" "$TARGET"
@@ -57,5 +56,5 @@ fi
 
 chmod +x "$TARGET"
 
-echo -e "${GREEN}✓ iceTerm 安装成功！路径: $TARGET${RESET}"
-echo -e "随时输入 ${CYAN}iceterm${RESET} 即可启动！"
+echo -e "${GREEN}[OK] iceTerm installed to: $TARGET${RESET}"
+echo -e "Run ${CYAN}iceterm${RESET} to launch."

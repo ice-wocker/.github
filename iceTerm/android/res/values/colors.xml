@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="bg_terminal">#0D1117</color>
+    <color name="bg_bar">#161B22</color>
+    <color name="bg_btn">#21262D</color>
+    <color name="btn_text">#C9D1D9</color>
+    <color name="accent_blue">#58A6FF</color>
+    <color name="accent_green">#238636</color>
+    <color name="accent_red">#F85149</color>
+    <color name="term_text">#E6EDF3</color>
+</resources>

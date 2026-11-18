@@ -1,5 +1,5 @@
 """
-Unit tests for iceTerm (纯标准库无依赖单测).
+Unit tests for iceTerm (Zero-Dependency Standard Library Suite).
 """
 
 import unittest
@@ -10,13 +10,12 @@ import threading
 import time
 import urllib.request
 
-# Ensure iceTerm package is in sys.path
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 import ice_term as it
 
 
 class TestSafetyGuard(unittest.TestCase):
-    """Test dangerous command detection and safety warnings."""
+    """Test dangerous command detection and security sandboxing."""
 
     def test_dangerous_commands(self):
         dangerous_cases = [
@@ -97,46 +96,45 @@ class TestErrorAnalyzer(unittest.TestCase):
 
 
 class TestAICopilotOffline(unittest.TestCase):
-    """Test AI Copilot offline heuristic pattern matcher."""
+    """Test AI Copilot offline heuristic router."""
 
     def setUp(self):
         self.copilot = it.AICopilot()
 
     def test_search_large_files(self):
-        cmd = self.copilot.query_offline("查找大于 200MB 的文件")
+        cmd = self.copilot.query_offline("find files > 200MB")
         self.assertIsNotNone(cmd)
         self.assertIn("find .", cmd)
         self.assertIn("200M", cmd)
 
     def test_search_port(self):
-        cmd = self.copilot.query_offline("查找占用端口 3000 的进程")
+        cmd = self.copilot.query_offline("查找端口 3000")
         self.assertIsNotNone(cmd)
         self.assertIn("3000", cmd)
         self.assertTrue("lsof" in cmd or "fuser" in cmd)
 
     def test_kill_port(self):
-        cmd = self.copilot.query_offline("杀死占用端口 8080 的进程")
+        cmd = self.copilot.query_offline("杀死端口 8080")
         self.assertIsNotNone(cmd)
         self.assertIn("fuser -k 8080/tcp", cmd)
 
     def test_archive_extract(self):
-        cmd = self.copilot.query_offline("解压 test.tar.gz")
-        self.assertEqual(cmd, "tar -zxvf test.tar.gz")
+        cmd = self.copilot.query_offline("tar backup.tar.gz")
+        self.assertEqual(cmd, "tar -zxvf backup.tar.gz")
 
     def test_android_phantom_process(self):
-        cmd = self.copilot.query_offline("关闭幽灵进程限制")
+        cmd = self.copilot.query_offline("disable phantom process")
         self.assertIn("settings_enable_monitor_phantom_procs false", cmd)
 
     def test_fallback_unrecognized(self):
-        cmd, source = self.copilot.ask("完全无法理解的乱码提示词 xyz123!@#")
-        self.assertIn("未能识别意图", cmd)
+        cmd, source = self.copilot.ask("invalid prompt string xyz123!@#")
+        self.assertIn("Unrecognized intent", cmd)
 
 
 class TestPortRadar(unittest.TestCase):
     """Test PortRadar IP and port parsing logic."""
 
     def test_parse_hex_endpoint(self):
-        # 0100007F:1F90 is 127.0.0.1:8080
         ip, port = it.PortRadar.parse_hex_endpoint("0100007F:1F90")
         self.assertEqual(ip, "127.0.0.1")
         self.assertEqual(port, 8080)
@@ -177,7 +175,7 @@ class TestWebTerminalServer(unittest.TestCase):
     def test_web_page_get(self):
         req = urllib.request.urlopen(f"http://127.0.0.1:{self.port}/")
         html = req.read().decode("utf-8")
-        self.assertIn("iceTerm Web Workstation", html)
+        self.assertIn("iceTerm Web Terminal", html)
 
     def test_status_endpoint(self):
         req = urllib.request.urlopen(f"http://127.0.0.1:{self.port}/api/status")
@@ -202,7 +200,7 @@ class TestWebTerminalServer(unittest.TestCase):
         )
         resp = json.loads(urllib.request.urlopen(req).read().decode("utf-8"))
         self.assertEqual(resp["exit_code"], 126)
-        self.assertIn("安全防护拦截", resp["output"])
+        self.assertIn("SECURITY-ALERT", resp["output"])
 
 
 if __name__ == "__main__":

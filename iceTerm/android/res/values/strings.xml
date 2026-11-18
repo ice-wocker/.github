@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">iceTerm</string>
+    <string name="welcome_msg">[iceTerm] Android Terminal Core ready.\nExecute shell commands or access devtools via quickbar.\n----------------------------------------\n</string>
+    <string name="btn_ai">AI Copilot</string>
+    <string name="btn_radar">Port Radar</string>
+    <string name="btn_clear">Clear</string>
+    <string name="btn_status">SysInfo</string>
+</resources>

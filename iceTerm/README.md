@@ -1,196 +1,163 @@
-# 🧊 iceTerm (冰端)
+# iceTerm
 
-> **极客与移动端极其强大的终端增强工作站 · 零第三方依赖 · 单文件纯 Python · 离线优先**
-> 
-> *A supercharged, dependency-free terminal workstation for Android (Termux) & Linux — multiplexer, AI copilot, port radar, phantom process guard, and built-in mobile web terminal.*
+> High-performance terminal workstation for Android (Termux) & Linux.
+> Zero third-party dependencies, single-file core, offline-first, native Android APK build.
 
-[![CI](https://github.com/ice-wocker/iceTerm/actions/workflows/ci.yml/badge.svg)](https://github.com/ice-wocker/iceTerm/actions)
+[![Android CI & Release](https://github.com/ice-wocker/iceTerm/actions/workflows/android-release.yml/badge.svg)](https://github.com/ice-wocker/iceTerm/actions)
 [![Python 3.8+](https://img.shields.io/badge/Python-3.8%2B-blue.svg)](https://www.python.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 [![Zero Dependencies](https://img.shields.io/badge/dependencies-0-success.svg)](#)
 
 ---
 
-## 💡 为什么需要 iceTerm？
+## Overview
 
-在手机端（Termux）或轻量 Linux 环境下进行日常开发和运维时，开发者经常遇到几个核心痛点：
+iceTerm is designed to address fundamental limitations in mobile and lightweight Linux development environments:
 
-1. **依赖过重**：想用会话分屏得装 `tmux`，想用 AI 辅助得跑复杂的 node/npm 工具链，频繁遇到 glibc/bionic 编译与依赖地狱。
-2. **Android 系统严苛杀后台**：Android 12+ 引入了**幽灵进程杀手 (Phantom Process Killer)**，子进程超过 32 个就会被 SIGKILL 暴毙，编译大型项目或跑服务经常莫名中断。
-3. **缺少端口与网络感知**：在手机上启动了本地 Web 服务（如 3000、8000 端口），不知道局域网 IP 是多少、局域网设备无法方便联调。
-4. **小屏手机输入极难**：手机虚拟键盘缺少 `Ctrl`、`Alt`、`ESC`、`TAB`、管道符 `|`、反引号等高频按键。
-5. **排错成本高**：移动端打字麻烦，遇到命令报错时缺乏一键分析与修复指导。
-
-**iceTerm 从零用纯 Python 标准库手写打造**，体积不到几十 KB，**零第三方依赖**，不依赖编译链，装上就能用，把全套终端增强能力塞进移动端！
+1. **Dependency bloat**: Modern developer tools require extensive Node/Python runtimes and complex toolchains. iceTerm implements PTY multiplexing, port scanning, and AI routing using only the standard library.
+2. **Android process restrictions**: Android 12+ enforces a 32-child-process limit (Phantom Process Killer), causing background compilation tasks to be terminated unexpectedly.
+3. **Network opacity**: Services started locally on mobile lack visibility into LAN IP allocation and port bindings.
+4. **Mobile input friction**: Touch keyboards lack dedicated modifiers (`Ctrl`, `Alt`, `ESC`, `TAB`, `|`, `~`).
+5. **AI Routing for Code**: Direct integration and intelligent routing to top coding models (DeepSeek-Coder, Qwen2.5-Coder, Claude 3.5 Sonnet) combined with a local zero-latency heuristic engine.
 
 ---
 
-## 🌟 核心特性一览
+## Feature Matrix
 
-| 模块 | 功能说明 | 传统方案对比 |
+| Subsystem | Implementation | Capability |
 | :--- | :--- | :--- |
-| **轻量虚拟终端多路复用** | 单文件纯 PTY 实现多标签页、无缝切换（`Ctrl+A 1..9`、`Ctrl+A c`） | 无需安装体积庞大的 `tmux`，毫秒级秒开 |
-| **端侧 AI 终端副驾驶** | 双引擎：0 延迟离线规则引擎 + OpenAI/端侧小模型 (iceLLM/llama.cpp/Ollama) 协议 | 断网也能自然语言生成 Shell 命令 |
-| **智能错误诊断与一键修复** | 命令非零退出时自动截取错误堆栈，给出精准原因与修复命令 | 免去手动 Google 搜报错的时间 |
-| **危险命令安全防护网** | 拦截 `rm -rf /`、`mkfs`、`dd` 覆写物理磁盘、Fork 炸弹等致命高危命令 | 防止在手机触摸屏上误触回车误删整机系统 |
-| **Android 幽灵进程守卫** | 内置 Android 12+ Phantom Process Killer 检测与一键 Shizuku/ADB 解除方案 | 根除单应用超过 32 进程被系统直接杀后台问题 |
-| **网络与端口感知雷达** | 纯 Python 解析 `/proc/net/tcp`，自动列出活动端口并生成局域网预览链接 | 免装 `netstat` / `ss` / `lsof` |
-| **移动端友好 Web 终端** | 内置微型 Web 服务器，手机或电脑浏览器直接打开，带专用虚拟扩展键盘 | 跨设备无缝编写与调试 |
+| **PTY Multiplexer** | Pure POSIX PTY (`pty`, `termios`, `select`) | Multi-tab session management without tmux dependency |
+| **AI Copilot** | Dual-engine: Offline heuristic + OpenAI protocol | Intelligent routing to premier coding models (`deepseek-coder`, `qwen2.5-coder`) |
+| **Security Interceptor** | Pattern-based AST matching | Blocks destructive commands (`rm -rf /`, raw disk overwrite, fork bombs) |
+| **Error Diagnostic** | Exit code and stack trace analysis | Automated diagnosis with actionable fix commands |
+| **Port Radar** | Pure `/proc/net/tcp` parser | Real-time socket discovery and LAN preview URLs without `netstat`/`lsof` |
+| **Phantom Process Guard**| Android system setting bridge | Instructions and script for disabling 32-process limit via Shizuku/ADB |
+| **Web Terminal** | Built-in HTTP server | Touch-optimized remote web terminal with virtual modifier keys |
+| **Android APK** | Zero-Gradle native build pipeline | Single-dex APK under 100KB compiled directly via Android SDK build-tools |
 
 ---
 
-## 🚀 极速上手
+## Installation & Quick Start
 
-### 方式一：一行命令安装 / 运行 (推荐)
+### 1. Terminal CLI / Workstation (Android Termux & Linux)
 
-在 **Termux (Android)** 或任意 **Linux / macOS** 终端中运行：
-
+One-line installation:
 ```bash
 curl -fsSL https://raw.githubusercontent.com/ice-wocker/iceTerm/main/install.sh | bash
 ```
 
-或者直接下载单文件执行（无任何依赖）：
-
+Or run directly with Python:
 ```bash
-curl -fsSL -o iceterm https://raw.githubusercontent.com/ice-wocker/iceTerm/main/ice_term.py
-chmod +x iceterm
-./iceterm
+python3 ice_term.py
 ```
+
+### 2. Android APK Package
+
+The project includes a standalone Android application under `android/`:
+- **Pre-built release**: Available under GitHub Releases (`iceterm.apk`).
+- **CI Automated Build**: Compiles directly via GitHub Actions with zero Gradle overhead.
+- **Local compilation**:
+  ```bash
+  cd android
+  ./build.sh
+  ```
 
 ---
 
-## ⌨️ 快捷键速查 (交互式多标签模式)
+## Key Bindings (Interactive Multiplexer)
 
-进入 `iceterm` 交互模式后，默认通过 `Ctrl+A`（类似 screen / tmux 习惯）唤出快捷菜单：
+Default prefix is `Ctrl+A`:
 
-- `Ctrl+A c` : 创建新标签页 (New Tab)
-- `Ctrl+A 1..9` : 快速跳转到第 1~9 个标签页
-- `Ctrl+A n` / `p` : 下一个 / 上一个标签页
-- `Ctrl+A x` : 关闭当前活跃标签页
-- `Ctrl+A a` : 呼出 **AI Copilot**，直接输入自然语言生成命令
-- `Ctrl+A s` : 呼出端口雷达与系统指标面板
-- `Ctrl+A Ctrl+A` : 发送原生 `Ctrl+A` 字符给终端程序
-- `Ctrl+A d` 或 `q` : 退出 iceTerm 会话
+- `Ctrl+A c` : Create new tab
+- `Ctrl+A 1..9` : Switch to tab N
+- `Ctrl+A n` / `p` : Next / Previous tab
+- `Ctrl+A x` : Close active tab
+- `Ctrl+A a` : AI Copilot prompt
+- `Ctrl+A s` : Port radar and system telemetry
+- `Ctrl+A Ctrl+A` : Send literal `Ctrl+A` to shell
+- `Ctrl+A d` : Terminate session
 
 ---
 
-## 🛠️ 常用命令行工具箱
+## CLI Reference
 
-除了交互式终端，`iceterm` 还提供强大的独立 CLI 工具：
-
-### 1. 自然语言转命令 (`iceterm ai`)
-
-```bash
-# 本地离线规则秒级匹配（不消耗流量、不依赖外网）
-iceterm ai "查找当前目录下大于100MB的文件"
-# 推荐命令: find . -type f -size +100M -exec ls -lh {} +
-
-iceterm ai "查找占用端口8080的进程"
-# 推荐命令: lsof -i :8080 || fuser 8080/tcp
-
-iceterm ai "解压 backup.tar.gz"
-# 推荐命令: tar -zxvf backup.tar.gz
-```
-
-> **配置自定义大模型**（可选）：
-> 支持接入本地 `iceLLM`、`llama.cpp`、`Ollama` 或云端模型：
-> ```bash
-> export OPENAI_BASE_URL="http://127.0.0.1:8080/v1"
-> export OPENAI_API_KEY="sk-xxx"
-> export OPENAI_MODEL="qwen2.5-coder"
-> ```
-
-### 2. 智能错误诊断 (`iceterm explain`)
+### AI Copilot (`iceterm ai`)
+Queries are routed to high-parameter coding models or matched instantly by the local offline engine:
 
 ```bash
-# 方式 A: 执行命令并在失败时自动分析
-iceterm run npm run dev
+# Instant offline heuristic translation
+iceterm ai "find files larger than 100MB"
+# Output: find . -type f -size +100M -exec ls -lh {} +
 
-# 方式 B: 诊断已有错误日志
-cat build.log | iceterm explain
+iceterm ai "kill process on port 8080"
+# Output: fuser -k 8080/tcp
 ```
 
-输出示例：
-```
-❌ 诊断报告: 端口冲突: 端口 3000 已被占用
-原因: 有其他后台进程正在监听该网络端口。
-💡 建议修复命令:
-  fuser -k 3000/tcp  # 一键释放该端口
+Configuring remote/local coding endpoints:
+```bash
+export OPENAI_BASE_URL="https://api.deepseek.com/v1"
+export OPENAI_API_KEY="your-api-key"
+export OPENAI_MODEL="deepseek-coder"
 ```
 
-### 3. 端口与网络雷达 (`iceterm radar`)
+### Automated Error Diagnosis (`iceterm explain`)
+```bash
+# Run command with proactive failure analysis
+iceterm run make build
 
+# Or pipe output logs
+cat error.log | iceterm explain
+```
+
+### Port & Interface Radar (`iceterm radar`)
 ```bash
 iceterm radar
 ```
+Scans `/proc/net/tcp` and maps active listeners to external access URLs.
 
-```
-📡 [iceTerm 端口与网络雷达]
-本机网络接口 IP: 127.0.0.1, 192.168.1.108
-
-协议   本地监听地址         端口     外部访问预览
-────────────────────────────────────────────────────────────
-TCP    0.0.0.0:3000         3000     http://192.168.1.108:3000
-TCP    127.0.0.1:8080       8080     http://127.0.0.1:8080 (仅本机)
-```
-
-### 4. 启动内置 Web 终端 (`iceterm serve`)
-
+### Mobile Web Terminal (`iceterm serve`)
 ```bash
 iceterm serve --port 7681
 ```
-- 在同局域网的电脑、平板或另一台手机上访问 `http://<手机IP>:7681`。
-- 手机端专属响应式 UI，自带 `Ctrl+C`、`TAB`、`ESC`、`|`、`~` 等常用扩展软按键。
+Spins up a lightweight browser-based terminal with virtual soft-keys for mobile devices.
 
-### 5. 解除 Android 12+ 幽灵进程杀手限制 (`iceterm fix-phantom`)
-
+### Phantom Process Guard (`iceterm fix-phantom`)
 ```bash
 iceterm fix-phantom
 ```
-输出在 Shizuku（免 Root）或 ADB 下的执行指令，一键解除 32 进程上限。
+Generates Shizuku and ADB commands to remove Android 12+ process throttling.
 
 ---
 
-## 📐 架构设计
+## Android APK Architecture
 
 ```
-┌──────────────────────────────────────────────────────────┐
-│                   iceTerm Architecture                   │
-├──────────────────────────────────────────────────────────┤
-│                                                          │
-│  [CLI / WebUI / Interactive MUX]                         │
-│   ├── PTY Allocation (pty.openpty, TIOCSWINSZ)           │
-│   ├── Event Loop (select, tty raw, termios)              │
-│   └── Tab Manager (Multiple concurrent processes)       │
-│                                                          │
-│  [AI Copilot Layer]                                      │
-│   ├── Offline Heuristic Rule Engine (Zero-Latency)       │
-│   └── OpenAI-Compatible Protocol Client (urllib.request) │
-│                                                          │
-│  [Safety & Diagnostic Layer]                             │
-│   ├── SafetyGuard (Dangerous command sandbox)            │
-│   └── ErrorAnalyzer (Automated stack trace analysis)     │
-│                                                          │
-│  [System Bridge Layer]                                   │
-│   ├── PortRadar (/proc/net/tcp parser)                   │
-│   ├── Battery & Thermal Monitor (/sys/class/...)         │
-│   └── Android Shizuku / ADB Bridge                       │
-│                                                          │
-└──────────────────────────────────────────────────────────┘
+android/
+├── AndroidManifest.xml
+├── build.sh                 # Zero-Gradle build: aapt2 -> javac -> d8 -> zipalign -> apksigner
+├── res/
+│   ├── drawable/ic_launcher.xml
+│   ├── layout/activity_main.xml
+│   └── values/{colors,strings,styles}.xml
+└── src/org/icewocker/iceterm/
+    ├── MainActivity.java    # Terminal UI, extra keys bar, history
+    ├── ShellSession.java    # Interactive shell process management & safety filter
+    ├── AICopilot.java       # Router for coding models & offline regex engine
+    └── PortRadar.java       # Local socket parser (/proc/net/tcp)
 ```
 
 ---
 
-## 🧪 自动化测试
+## Continuous Integration & Release
 
-所有测试均使用 Python 标准库 `unittest` 编写，不依赖任何第三方单测库：
-
-```bash
-python3 -m unittest discover -s tests
-```
+GitHub Actions pipeline (`.github/workflows/android-release.yml`):
+- Runs core unit tests without external packages.
+- Compiles `iceterm.apk` on `ubuntu-latest` via SDK tools.
+- Signs and verifies APK with `apksigner`.
+- Automatically publishes release assets when a version tag (`v*`) is pushed.
 
 ---
 
-## 📜 许可证
+## License
 
-本项目采用 [MIT License](LICENSE) 开源。
+MIT License. Copyright (c) 2026 ice-wocker.
