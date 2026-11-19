@@ -1,6 +1,6 @@
 #!/bin/bash
 # iceTerm Android APK Build Script (Zero-Gradle, Pure SDK Toolchain)
-set -euo pipefail
+set -exuo pipefail
 cd "$(dirname "$0")"
 
 # 1. Locate Android SDK

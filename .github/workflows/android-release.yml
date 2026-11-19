@@ -51,7 +51,20 @@ jobs:
       - name: Build APK (Zero-Gradle)
         run: |
           cd iceTerm/android
-          ./build.sh
+          ./build.sh > /tmp/build.log 2>&1 || {
+            STATUS=$?
+            echo "### Build Failed with status $STATUS" >> $GITHUB_STEP_SUMMARY
+            echo '```text' >> $GITHUB_STEP_SUMMARY
+            cat /tmp/build.log >> $GITHUB_STEP_SUMMARY
+            echo '```' >> $GITHUB_STEP_SUMMARY
+            cat /tmp/build.log
+            exit $STATUS
+          }
+          echo "### Build Succeeded" >> $GITHUB_STEP_SUMMARY
+          echo '```text' >> $GITHUB_STEP_SUMMARY
+          cat /tmp/build.log >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          cat /tmp/build.log
 
       - name: Verify APK Signature & Package
         run: |
