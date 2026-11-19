@@ -51,38 +51,26 @@ jobs:
       - name: Build APK (Zero-Gradle)
         run: |
           cd android
-          ./build.sh > /tmp/build.log 2>&1 || {
-            STATUS=$?
-            echo "### Build Failed with status $STATUS" >> $GITHUB_STEP_SUMMARY
-            echo '```text' >> $GITHUB_STEP_SUMMARY
-            cat /tmp/build.log >> $GITHUB_STEP_SUMMARY
-            echo '```' >> $GITHUB_STEP_SUMMARY
-            cat /tmp/build.log
-            exit $STATUS
-          }
-          echo "### Build Succeeded" >> $GITHUB_STEP_SUMMARY
-          echo '```text' >> $GITHUB_STEP_SUMMARY
-          cat /tmp/build.log >> $GITHUB_STEP_SUMMARY
-          echo '```' >> $GITHUB_STEP_SUMMARY
-          cat /tmp/build.log
+          ./build.sh
+          cp iceterm.apk ../iceterm.apk
 
       - name: Verify APK Signature & Package
         run: |
           BT=$(ls -1d "$ANDROID_HOME"/build-tools/* | sort -V | tail -1)
-          "$BT/apksigner" verify -v android/iceterm.apk
-          echo "Verified signature for android/iceterm.apk"
+          "$BT/apksigner" verify -v iceterm.apk
+          echo "Verified signature for iceterm.apk"
 
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
         with:
           name: iceterm-release-apk
-          path: android/iceterm.apk
+          path: iceterm.apk
           if-no-files-found: error
 
       - name: Publish to GitHub Release
         if: startsWith(github.ref, 'refs/tags/v')
         uses: softprops/action-gh-release@v2
         with:
-          files: android/iceterm.apk
+          files: iceterm.apk
           generate_release_notes: true
           draft: false

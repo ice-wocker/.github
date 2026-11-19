@@ -140,7 +140,7 @@ public class AICopilot {
         Matcher matcher = pattern.matcher(json);
         if (matcher.find()) {
             String raw = matcher.group(1).replace("\\n", "\n").replace("\\\"", "\"").replace("\\\\", "\\");
-            Pattern codePat = Pattern.compile("```(?:bash|sh)?\\s*([\\s\\S]*?)\s*```");
+            Pattern codePat = Pattern.compile("```(?:bash|sh)?\\s*([\\s\\S]*?)\\s*```");
             Matcher cm = codePat.matcher(raw);
             if (cm.find()) return cm.group(1).trim();
             return raw.trim();
