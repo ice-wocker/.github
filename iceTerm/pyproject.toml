@@ -1,0 +1,33 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ice-term"
+version = "1.1.0"
+description = "Supercharged, dependency-free terminal workstation for Android (Termux) & Linux"
+readme = "README.md"
+requires-python = ">=3.8"
+license = { text = "MIT" }
+authors = [
+    { name = "ice-wocker" }
+]
+keywords = ["terminal", "termux", "multiplexer", "ai-terminal", "android", "zero-dependency"]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Environment :: Console",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: POSIX :: Linux",
+    "Operating System :: Android",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
+    "Topic :: System :: Shells",
+    "Topic :: Terminals",
+]
+
+[project.scripts]
+iceterm = "ice_term:main"
+
+[tool.setuptools]
+py-modules = ["ice_term"]

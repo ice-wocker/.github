@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Theme.IceTerm" parent="@android:style/Theme.NoTitleBar.Fullscreen">
+        <item name="android:windowBackground">@color/bg_terminal</item>
+        <item name="android:colorBackground">@color/bg_terminal</item>
+    </style>
+</resources>

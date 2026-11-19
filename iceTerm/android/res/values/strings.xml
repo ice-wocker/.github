@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">iceTerm</string>
+    <string name="welcome_msg">[iceTerm] Terminal Core v1.1.0\nLinux &amp; Android Workstation Environment\nType \'help\' or tap TOOLBOX for quick commands.\n----------------------------------------------------\n</string>
+    <string name="btn_ai">AI Copilot</string>
+    <string name="btn_radar">Port Radar</string>
+    <string name="btn_toolbox">Toolbox</string>
+    <string name="btn_scripts">Scripts</string>
+    <string name="btn_cheatsheet">Cheatsheet</string>
+    <string name="btn_sys">SysInfo</string>
+    <string name="btn_clear">Clear</string>
+    <string name="btn_new_tab">+ Tab</string>
+    <string name="btn_settings">Settings</string>
+    <string name="hint_input">Enter shell command...</string>
+    <string name="btn_run">RUN</string>
+</resources>
