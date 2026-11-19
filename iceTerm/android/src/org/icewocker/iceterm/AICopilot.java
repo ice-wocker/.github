@@ -21,7 +21,7 @@ public class AICopilot {
 
     public static String matchOffline(String prompt) {
         if (prompt == null) return null;
-        String p = prompt.trim();
+        String p = prompt.trim().toLowerCase();
 
         // 1. 查找大文件 (Find large files)
         Pattern p1 = Pattern.compile("(?:find|search|查找|搜索|列出|找出).*?(?:大于|>)\\s*(\\d+)\\s*(m|mb|g|gb)?", Pattern.CASE_INSENSITIVE);
@@ -31,21 +31,26 @@ public class AICopilot {
             return "find . -type f -size +" + m1.group(1) + unit + " -exec ls -lh {} +";
         }
 
-        // 2. 按名称查找文件
-        Pattern pName = Pattern.compile("(?:查找|搜索|找|find|search).*?名(?:字|称|为|包含)*\\s*([a-zA-Z0-9_\\-\\.\\*]+)");
+        // 2. 按文件名或后缀查找文件
+        Pattern pName = Pattern.compile("(?:查找|搜索|找|find|search).*?(?:名|后缀|包含|文件).*?\\b([a-zA-Z0-9_\\-\\.\\*]+)");
         Matcher mName = pName.matcher(p);
         if (mName.find()) {
-            return "find . -name '*" + mName.group(1) + "*'";
+            String target = mName.group(1);
+            if (target.startsWith(".")) {
+                return "find . -type f -name '*" + target + "'";
+            }
+            return "find . -name '*" + target + "*'";
         }
 
         // 3. 端口探测与强杀
         Pattern p2 = Pattern.compile("(?:port|端口).*?(\\d{2,5})");
         Matcher m2 = p2.matcher(p);
         if (m2.find()) {
+            String port = m2.group(1);
             if (p.contains("kill") || p.contains("杀") || p.contains("关闭") || p.contains("释放")) {
-                return "fuser -k " + m2.group(1) + "/tcp";
+                return "fuser -k " + port + "/tcp";
             }
-            return "lsof -i :" + m2.group(1) + " || fuser " + m2.group(1) + "/tcp";
+            return "lsof -i :" + port + " || fuser " + port + "/tcp";
         }
 
         // 4. 磁盘与目录空间
@@ -56,19 +61,22 @@ public class AICopilot {
             return "du -sh * | sort -hr | head -n 15";
         }
 
-        // 5. 内存与 CPU
+        // 5. 内存与 CPU 性能
         if (p.contains("内存") || p.contains("memory") || p.contains("ram") || p.contains("运存")) {
             return "cat /proc/meminfo | head -n 12";
         }
-        if (p.contains("cpu") || p.contains("处理器") || p.contains("系统负载") || p.contains("占用高")) {
+        if (p.contains("cpu") || p.contains("处理器") || p.contains("系统负载") || p.contains("占用高") || p.contains("负荷")) {
             return "top -m 10 -d 2";
         }
 
-        // 6. 进程强杀
-        Pattern pKill = Pattern.compile("(?:杀死|杀掉|强杀|kill|pkill).*?进程\\s*([a-zA-Z0-9_\\-]+)");
+        // 6. 进程强杀与管理
+        Pattern pKill = Pattern.compile("(?:杀死|杀掉|强杀|kill|pkill).*?进程.*?([a-zA-Z0-9_\\-]+)");
         Matcher mKill = pKill.matcher(p);
         if (mKill.find()) {
             return "pkill -f '" + mKill.group(1) + "'";
+        }
+        if (p.contains("进程树") || p.contains("父子进程") || p.contains("pstree")) {
+            return "pstree -p 2>/dev/null || ps -ef";
         }
 
         // 7. 归档与解压缩
@@ -82,6 +90,9 @@ public class AICopilot {
                 return "tar -zxvf " + mTar.group(1);
             }
         }
+        if (p.contains(".tar.xz") || p.contains("tar.xz")) {
+            return "tar -Jxvf archive.tar.xz";
+        }
         if (p.contains(".zip") || p.contains("zip")) {
             Pattern pZip = Pattern.compile("([a-zA-Z0-9_\\-\\.]+\\.zip)");
             Matcher mZip = pZip.matcher(p);
@@ -90,7 +101,10 @@ public class AICopilot {
             }
         }
 
-        // 8. 网络与 IP
+        // 8. 网络与 IP、连通性
+        if (p.contains("公网ip") || p.contains("外网ip")) {
+            return "curl -s https://api.ipify.org && echo";
+        }
         if (p.contains("ip") || p.contains("网络地址") || p.contains("内网地址") || p.contains("网卡")) {
             return "ip -br a || ifconfig";
         }
@@ -100,8 +114,14 @@ public class AICopilot {
         if (p.contains("网络连接") || p.contains("连接数")) {
             return "netstat -nat | grep ESTABLISHED | wc -l";
         }
+        if (p.contains("ping") || p.contains("连通性") || p.contains("延迟") || p.contains("网络测试")) {
+            return "ping -c 4 223.5.5.5";
+        }
+        if (p.contains("路由追踪") || p.contains("traceroute")) {
+            return "traceroute -n 223.5.5.5";
+        }
 
-        // 9. Android 系统与幽灵进程
+        // 9. Android 系统底层与幽灵进程
         if (p.contains("幽灵进程") || p.contains("phantom") || p.contains("32") || p.contains("限制")) {
             return "settings put global settings_enable_monitor_phantom_procs false";
         }
@@ -111,8 +131,14 @@ public class AICopilot {
         if (p.contains("日志") || p.contains("logcat") || p.contains("报错日志")) {
             return "logcat -d *:E | tail -n 50";
         }
-        if (p.contains("第三方应用") || p.contains("已安装应用") || p.contains("安装包列表")) {
+        if (p.contains("第三方应用") || p.contains("已安装应用") || p.contains("安装包列表") || p.contains("应用包名")) {
             return "pm list packages -3";
+        }
+        if (p.contains("屏幕尺寸") || p.contains("屏幕分辨率") || p.contains("分辨率")) {
+            return "wm size && wm density";
+        }
+        if (p.contains("截屏") || p.contains("截图")) {
+            return "screencap -p /sdcard/screenshot.png";
         }
 
         // 10. Git 常用操作
@@ -120,18 +146,32 @@ public class AICopilot {
             if (p.contains("提交") || p.contains("commit")) {
                 return "git add -A && git commit -m \"update\"";
             }
+            if (p.contains("分支树") || p.contains("历史图") || p.contains("graph")) {
+                return "git log --graph --oneline --decorate --all -n 12";
+            }
             if (p.contains("日志") || p.contains("历史") || p.contains("log")) {
-                return "git log --oneline --graph -n 10";
+                return "git log --oneline -n 10";
             }
             if (p.contains("撤销") || p.contains("还原") || p.contains("丢弃")) {
                 return "git restore . && git clean -fd";
             }
+            if (p.contains("暂存") || p.contains("stash")) {
+                return "git stash push -m 'quick_save'";
+            }
             return "git status -s";
         }
 
-        // 11. 代码统计与搜索
+        // 11. 代码统计与文本搜索
         if (p.contains("行数") || p.contains("代码量") || p.contains("统计")) {
             return "find . -type f \\( -name '*.java' -o -name '*.py' -o -name '*.sh' -o -name '*.js' \\) -exec wc -l {} +";
+        }
+        if (p.contains("删除空行") || p.contains("清空空行")) {
+            return "sed -i '/^[[:space:]]*$/d' <文件>";
+        }
+
+        // 12. 文件服务器与网络分享
+        if (p.contains("文件服务") || p.contains("局域网分享") || p.contains("http服务")) {
+            return "python3 -m http.server 8080";
         }
 
         return null;

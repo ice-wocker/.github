@@ -79,6 +79,15 @@ public class MainActivity extends Activity {
         } else if ("monokai".equals(theme)) {
             termOutput.setTextColor(Color.rgb(248, 248, 242));
             scrollView.setBackgroundColor(Color.rgb(39, 40, 34));
+        } else if ("cyber_cyan".equals(theme)) {
+            termOutput.setTextColor(Color.rgb(88, 166, 255));
+            scrollView.setBackgroundColor(Color.rgb(10, 17, 40));
+        } else if ("solarized_dark".equals(theme)) {
+            termOutput.setTextColor(Color.rgb(131, 148, 150));
+            scrollView.setBackgroundColor(Color.rgb(0, 43, 54));
+        } else if ("retro_amber".equals(theme)) {
+            termOutput.setTextColor(Color.rgb(255, 176, 0));
+            scrollView.setBackgroundColor(Color.rgb(26, 17, 0));
         } else {
             // Default: GitHub Dark
             termOutput.setTextColor(Color.rgb(230, 237, 243));
@@ -251,6 +260,20 @@ public class MainActivity extends Activity {
             @Override
             public void onClick(View v) {
                 showToolboxDialog();
+            }
+        });
+
+        findViewById(R.id.btn_scripts).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showScriptsDialog();
+            }
+        });
+
+        findViewById(R.id.btn_cheatsheet).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showCheatsheetDialog();
             }
         });
 
@@ -533,6 +556,136 @@ public class MainActivity extends Activity {
         dialog.show();
     }
 
+    private void showScriptsDialog() {
+        final List<ScriptLibrary.ScriptItem> scripts = ScriptLibrary.getScripts();
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_2, android.R.id.text1, new ArrayList<String>()) {
+            @Override
+            public View getView(int position, View convertView, ViewGroup parent) {
+                View view = super.getView(position, convertView, parent);
+                TextView text1 = (TextView) view.findViewById(android.R.id.text1);
+                TextView text2 = (TextView) view.findViewById(android.R.id.text2);
+                ScriptLibrary.ScriptItem item = scripts.get(position);
+                text1.setText(item.title + " [" + item.category + "]");
+                text1.setTextColor(Color.parseColor("#BC8CFF"));
+                text2.setText(item.description);
+                text2.setTextColor(Color.parseColor("#8B949E"));
+                return view;
+            }
+
+            @Override
+            public int getCount() {
+                return scripts.size();
+            }
+        };
+
+        ListView listView = new ListView(this);
+        listView.setAdapter(adapter);
+
+        final AlertDialog listDialog = new AlertDialog.Builder(this)
+                .setTitle("自动化与运维脚本库")
+                .setView(listView)
+                .setNegativeButton("关闭", null)
+                .create();
+
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                final ScriptLibrary.ScriptItem script = scripts.get(position);
+                listDialog.dismiss();
+
+                ScrollView sv = new ScrollView(MainActivity.this);
+                TextView tv = new TextView(MainActivity.this);
+                tv.setText(script.scriptCode);
+                tv.setTypeface(android.graphics.Typeface.MONOSPACE);
+                tv.setTextSize(12);
+                tv.setPadding(24, 24, 24, 24);
+                tv.setTextColor(Color.parseColor("#E6EDF3"));
+                sv.addView(tv);
+
+                new AlertDialog.Builder(MainActivity.this)
+                        .setTitle(script.title)
+                        .setView(sv)
+                        .setPositiveButton("立即执行", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface d, int which) {
+                                SessionManager.TabSession active = sessionManager.getActiveSession();
+                                if (active != null) {
+                                    active.shell.write(script.scriptCode + "\n");
+                                }
+                            }
+                        })
+                        .setNeutralButton("填入输入框", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface d, int which) {
+                                termInput.setText(script.scriptCode.replace("\n", " ; "));
+                                termInput.setSelection(termInput.getText().length());
+                            }
+                        })
+                        .setNegativeButton("取消", null)
+                        .show();
+            }
+        });
+
+        listDialog.show();
+    }
+
+    private void showCheatsheetDialog() {
+        final List<DevCheatsheet.CheatItem> items = DevCheatsheet.getItems();
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_2, android.R.id.text1, new ArrayList<String>()) {
+            @Override
+            public View getView(int position, View convertView, ViewGroup parent) {
+                View view = super.getView(position, convertView, parent);
+                TextView text1 = (TextView) view.findViewById(android.R.id.text1);
+                TextView text2 = (TextView) view.findViewById(android.R.id.text2);
+                DevCheatsheet.CheatItem item = items.get(position);
+                text1.setText(item.title);
+                text1.setTextColor(Color.parseColor("#D29922"));
+                text2.setText("分类: " + item.category);
+                text2.setTextColor(Color.parseColor("#8B949E"));
+                return view;
+            }
+
+            @Override
+            public int getCount() {
+                return items.size();
+            }
+        };
+
+        ListView listView = new ListView(this);
+        listView.setAdapter(adapter);
+
+        final AlertDialog listDialog = new AlertDialog.Builder(this)
+                .setTitle("开发者离线速查手册")
+                .setView(listView)
+                .setNegativeButton("关闭", null)
+                .create();
+
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                DevCheatsheet.CheatItem item = items.get(position);
+                listDialog.dismiss();
+
+                ScrollView sv = new ScrollView(MainActivity.this);
+                TextView tv = new TextView(MainActivity.this);
+                tv.setText(item.content);
+                tv.setTypeface(android.graphics.Typeface.MONOSPACE);
+                tv.setTextSize(12);
+                tv.setPadding(24, 24, 24, 24);
+                tv.setTextColor(Color.parseColor("#E6EDF3"));
+                sv.addView(tv);
+
+                new AlertDialog.Builder(MainActivity.this)
+                        .setTitle(item.title)
+                        .setView(sv)
+                        .setPositiveButton("关闭", null)
+                        .show();
+            }
+        });
+
+        listDialog.show();
+    }
+
     private void showRadarDialog() {
         new Thread(new Runnable() {
             @Override
@@ -691,7 +844,7 @@ public class MainActivity extends Activity {
         layout.addView(tvFont);
 
         final Spinner spFont = new Spinner(this);
-        String[] fontSizes = new String[]{"11 sp", "12 sp (默认)", "14 sp", "16 sp", "18 sp"};
+        String[] fontSizes = new String[]{"11 sp", "12 sp (默认)", "14 sp", "16 sp", "18 sp", "20 sp"};
         spFont.setAdapter(new ArrayAdapter<String>(this, android.R.layout.simple_spinner_dropdown_item, fontSizes));
         spFont.setSelection(1);
         layout.addView(spFont);
@@ -701,7 +854,14 @@ public class MainActivity extends Activity {
         layout.addView(tvTheme);
 
         final Spinner spTheme = new Spinner(this);
-        String[] themes = new String[]{"GitHub Dark (极客黑)", "Hacker Green (黑客绿)", "Monokai (经典复古)"};
+        String[] themes = new String[]{
+                "GitHub Dark (极客黑)",
+                "Hacker Green (黑客绿)",
+                "Monokai (经典复古)",
+                "Cyber Cyan (赛博蓝)",
+                "Solarized Dark (暗色太阳)",
+                "Retro Amber (经典琥珀)"
+        };
         spTheme.setAdapter(new ArrayAdapter<String>(this, android.R.layout.simple_spinner_dropdown_item, themes));
         layout.addView(spTheme);
 
@@ -711,9 +871,9 @@ public class MainActivity extends Activity {
                 .setPositiveButton("应用", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        int[] sizes = new int[]{11, 12, 14, 16, 18};
+                        int[] sizes = new int[]{11, 12, 14, 16, 18, 20};
                         int selectedSize = sizes[spFont.getSelectedItemPosition()];
-                        String[] themeKeys = new String[]{"github_dark", "hacker_green", "monokai"};
+                        String[] themeKeys = new String[]{"github_dark", "hacker_green", "monokai", "cyber_cyan", "solarized_dark", "retro_amber"};
                         String selectedTheme = themeKeys[spTheme.getSelectedItemPosition()];
 
                         prefs.edit()

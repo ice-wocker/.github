@@ -5,6 +5,8 @@
     <string name="btn_ai">AI Copilot</string>
     <string name="btn_radar">Port Radar</string>
     <string name="btn_toolbox">Toolbox</string>
+    <string name="btn_scripts">Scripts</string>
+    <string name="btn_cheatsheet">Cheatsheet</string>
     <string name="btn_sys">SysInfo</string>
     <string name="btn_clear">Clear</string>
     <string name="btn_new_tab">+ Tab</string>

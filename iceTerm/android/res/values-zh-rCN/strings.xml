@@ -5,6 +5,8 @@
     <string name="btn_ai">AI 副驾驶</string>
     <string name="btn_radar">端口雷达</string>
     <string name="btn_toolbox">工具箱</string>
+    <string name="btn_scripts">脚本库</string>
+    <string name="btn_cheatsheet">速查表</string>
     <string name="btn_sys">系统监控</string>
     <string name="btn_clear">清屏</string>
     <string name="btn_new_tab">+ 标签</string>

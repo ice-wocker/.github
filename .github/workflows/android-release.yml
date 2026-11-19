@@ -60,6 +60,15 @@ jobs:
           "$BT/apksigner" verify -v iceterm.apk
           echo "Verified signature for iceterm.apk"
 
+      - name: Commit Prebuilt APK to Workspace
+        if: github.ref == 'refs/heads/arena/04f9961e-github'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add iceterm.apk
+          git commit -m "build: attach prebuilt release APK binary [skip ci]" || true
+          git push origin HEAD:arena/04f9961e-github || true
+
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
         with:
