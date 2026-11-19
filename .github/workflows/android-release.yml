@@ -53,17 +53,16 @@ jobs:
           cd iceTerm/android
           ./build.sh > /tmp/build.log 2>&1 || {
             STATUS=$?
-            echo "### Build Failed with status $STATUS" >> $GITHUB_STEP_SUMMARY
-            echo '```text' >> $GITHUB_STEP_SUMMARY
-            cat /tmp/build.log >> $GITHUB_STEP_SUMMARY
-            echo '```' >> $GITHUB_STEP_SUMMARY
             cat /tmp/build.log
+            cp /tmp/build.log ../../build-error.log
+            cd ../..
+            git config user.name "github-actions[bot]"
+            git config user.email "github-actions[bot]@users.noreply.github.com"
+            git add build-error.log
+            git commit -m "ci: upload build error log for inspection" || true
+            git push origin HEAD:arena/04f9961e-github || true
             exit $STATUS
           }
-          echo "### Build Succeeded" >> $GITHUB_STEP_SUMMARY
-          echo '```text' >> $GITHUB_STEP_SUMMARY
-          cat /tmp/build.log >> $GITHUB_STEP_SUMMARY
-          echo '```' >> $GITHUB_STEP_SUMMARY
           cat /tmp/build.log
 
       - name: Verify APK Signature & Package
