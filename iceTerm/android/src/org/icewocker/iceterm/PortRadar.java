@@ -7,6 +7,7 @@ import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.List;
@@ -27,7 +28,7 @@ public class PortRadar {
     }
 
     public static List<String> getLocalIpAddresses() {
-        List<String> list = new ArrayList<>();
+        List<String> list = new ArrayList<String>();
         list.add("127.0.0.1");
         try {
             Enumeration<NetworkInterface> interfaces = NetworkInterface.getNetworkInterfaces();
@@ -50,14 +51,16 @@ public class PortRadar {
     }
 
     public static List<PortEntry> scanListeningPorts() {
-        List<PortEntry> results = new ArrayList<>();
-        Set<Integer> seen = new HashSet<>();
+        List<PortEntry> results = new ArrayList<PortEntry>();
+        Set<Integer> seen = new HashSet<Integer>();
         String[] procPaths = new String[]{"/proc/net/tcp", "/proc/net/tcp6"};
 
         for (String p : procPaths) {
             File f = new File(p);
             if (!f.exists() || !f.canRead()) continue;
-            try (BufferedReader reader = new BufferedReader(new FileReader(f))) {
+            BufferedReader reader = null;
+            try {
+                reader = new BufferedReader(new FileReader(f));
                 String line = reader.readLine(); // skip header
                 while ((line = reader.readLine()) != null) {
                     String[] parts = line.trim().split("\\s+");
@@ -79,10 +82,20 @@ public class PortRadar {
                         }
                     }
                 }
-            } catch (Exception ignored) {}
+            } catch (Exception ignored) {
+            } finally {
+                if (reader != null) {
+                    try { reader.close(); } catch (Exception ignored) {}
+                }
+            }
         }
 
-        Collections.sort(results, (a, b) -> Integer.compare(a.port, b.port));
+        Collections.sort(results, new Comparator<PortEntry>() {
+            @Override
+            public int compare(PortEntry a, PortEntry b) {
+                return Integer.compare(a.port, b.port);
+            }
+        });
         return results;
     }
 

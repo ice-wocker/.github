@@ -1,6 +1,5 @@
 #!/bin/bash
 # iceTerm Android APK Build Script (Zero-Gradle, Pure SDK Toolchain)
-# Builds high-performance, single-dex, sub-100KB APK in seconds without Gradle overhead.
 set -euo pipefail
 cd "$(dirname "$0")"
 
@@ -17,7 +16,7 @@ fi
 BT=$(ls -1d "$SDK"/build-tools/* 2>/dev/null | sort -V | tail -1)
 [ -n "$BT" ] || { echo "ERROR: No build-tools found under $SDK/build-tools"; exit 1; }
 
-# Pick highest available platform
+# Pick compileSdk
 PLATFORM=""
 for v in 35 34 33 32 31 30 29 28 27 26 25 24 23 22 21; do
   [ -f "$SDK/platforms/android-$v/android.jar" ] && PLATFORM="$v" && break
@@ -42,15 +41,18 @@ echo "[2/6] Compiling resources with aapt2..."
 "$AAPT2" compile --dir res -o "$WORK/res.zip"
 
 echo "[3/6] Linking resources and generating R.java..."
-"$AAPT2" link \
-  -o "$WORK/base.apk" \
-  -I "$ANDROID_JAR" \
-  --manifest AndroidManifest.xml \
-  -R "$WORK/res.zip" \
-  --java "$WORK/gen" \
-  --min-sdk-version 21 \
-  --target-sdk-version 34 \
+LINK_ARGS=(
+  link
+  -o "$WORK/base.apk"
+  -I "$ANDROID_JAR"
+  --manifest AndroidManifest.xml
+  -R "$WORK/res.zip"
+  --java "$WORK/gen"
+  --min-sdk-version 21
+  --target-sdk-version 30
   --auto-add-overlay
+)
+"$AAPT2" "${LINK_ARGS[@]}"
 
 # 3. Compile Java Source Files
 echo "[4/6] Compiling Java source..."
@@ -58,7 +60,7 @@ SRC=$(find src -name '*.java')
 GEN=$(find "$WORK/gen" -name '*.java' 2>/dev/null || true)
 javac -encoding UTF-8 -source 8 -target 8 \
   -bootclasspath "$ANDROID_JAR" -classpath "$ANDROID_JAR" \
-  -nowarn -d "$WORK/classes" $SRC $GEN 2>&1 | grep -v 'bootstrap class path' || true
+  -nowarn -d "$WORK/classes" $SRC $GEN
 
 CLASS_COUNT=$(find "$WORK/classes" -name '*.class' | wc -l)
 [ "$CLASS_COUNT" -gt 0 ] || { echo "ERROR: No class files generated"; exit 1; }

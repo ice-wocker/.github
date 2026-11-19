@@ -47,22 +47,25 @@ public class ShellSession {
             stdout = new BufferedReader(new InputStreamReader(process.getInputStream(), StandardCharsets.UTF_8));
             isRunning = true;
 
-            new Thread(() -> {
-                char[] buffer = new char[1024];
-                int read;
-                try {
-                    while (isRunning && (read = stdout.read(buffer, 0, buffer.length)) != -1) {
-                        String chunk = new String(buffer, 0, read);
-                        if (listener != null) listener.onOutput(chunk);
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    char[] buffer = new char[1024];
+                    int read;
+                    try {
+                        while (isRunning && (read = stdout.read(buffer, 0, buffer.length)) != -1) {
+                            String chunk = new String(buffer, 0, read);
+                            if (listener != null) listener.onOutput(chunk);
+                        }
+                    } catch (Exception ignored) {
+                    } finally {
+                        int exit = 0;
+                        if (process != null) {
+                            try { exit = process.waitFor(); } catch (Exception ignored) {}
+                        }
+                        isRunning = false;
+                        if (listener != null) listener.onProcessExit(exit);
                     }
-                } catch (Exception ignored) {
-                } finally {
-                    int exit = 0;
-                    if (process != null) {
-                        try { exit = process.waitFor(); } catch (Exception ignored) {}
-                    }
-                    isRunning = false;
-                    if (listener != null) listener.onProcessExit(exit);
                 }
             }).start();
 
