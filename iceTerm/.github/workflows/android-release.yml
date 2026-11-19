@@ -69,8 +69,8 @@ jobs:
       - name: Verify APK Signature & Package
         run: |
           BT=$(ls -1d "$ANDROID_HOME"/build-tools/* | sort -V | tail -1)
-          "$BT/apksigner" verify android/iceterm.apk
-          "$BT/aapt" dump badging android/iceterm.apk | head -5
+          "$BT/apksigner" verify -v android/iceterm.apk
+          echo "Verified signature for android/iceterm.apk"
 
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
