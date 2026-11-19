@@ -51,19 +51,7 @@ jobs:
       - name: Build APK (Zero-Gradle)
         run: |
           cd iceTerm/android
-          ./build.sh > /tmp/build.log 2>&1 || {
-            STATUS=$?
-            cat /tmp/build.log
-            cp /tmp/build.log ../../build-error.log
-            cd ../..
-            git config user.name "github-actions[bot]"
-            git config user.email "github-actions[bot]@users.noreply.github.com"
-            git add build-error.log
-            git commit -m "ci: upload build error log for inspection" || true
-            git push origin HEAD:arena/04f9961e-github || true
-            exit $STATUS
-          }
-          cat /tmp/build.log
+          ./build.sh
           cp iceterm.apk ../../iceterm.apk
 
       - name: Verify APK Signature & Package

@@ -523,7 +523,7 @@ public class MainActivity extends Activity {
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                CommandToolbox.CommandItem item = currentItems[0].get(position);
+                CommandToolbox.CommandItem item = currentItems.get(position);
                 termInput.setText(item.command);
                 termInput.setSelection(item.command.length());
                 dialog.dismiss();
