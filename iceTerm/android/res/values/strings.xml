@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">iceTerm</string>
-    <string name="welcome_msg">[iceTerm] Terminal Core v1.1.0\nLinux &amp; Android Workstation Environment\nType 'help' or tap TOOLBOX for quick commands.\n----------------------------------------------------\n</string>
+    <string name="welcome_msg">[iceTerm] Terminal Core v1.1.0\nLinux &amp; Android Workstation Environment\nType \'help\' or tap TOOLBOX for quick commands.\n----------------------------------------------------\n</string>
     <string name="btn_ai">AI Copilot</string>
     <string name="btn_radar">Port Radar</string>
     <string name="btn_toolbox">Toolbox</string>

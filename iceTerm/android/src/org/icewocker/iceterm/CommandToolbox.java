@@ -51,7 +51,7 @@ public class CommandToolbox {
 
         // 4. 文本处理与三剑客 (Text & Utilities)
         add("在目录中递归搜索文本", "grep -rn --exclude-dir=.git '<关键词>' .", "文本处理", "在当前工程中高效模糊检索指定代码或文本");
-        add("查看文件首尾内容", "head -n 20 <文件> &amp;&amp; tail -n 20 <文件>", "文本处理", "分别预览目标文件的前 20 行与最后 20 行");
+        add("查看文件首尾内容", "head -n 20 <文件> && tail -n 20 <文件>", "文本处理", "分别预览目标文件的前 20 行与最后 20 行");
         add("动态实时追踪日志末尾", "tail -f <日志文件>", "文本处理", "类似 logcat 持续监听追加写入的新日志行");
         add("去重并统计重复出现频次", "sort <文件> | uniq -c | sort -nr", "文本处理", "对文本行排序并计算每行重复出现的频次");
         add("正则替换文件中的文本", "sed -i 's/旧内容/新内容/g' <文件>", "文本处理", "原地执行全局字符串正则替换");
@@ -73,9 +73,9 @@ public class CommandToolbox {
         add("查看当前运行前台应用 Activity", "dumpsys window | grep -E 'mCurrentFocus|mFocusedApp'", "安卓底层", "获取当前屏幕处于活动顶层的 Activity 窗口");
 
         // 7. 开发环境与 Git (Developer Tools)
-        add("查看 Git 当前状态与精简日志", "git status -s &amp;&amp; git log -n 5 --oneline", "开发工具", "快速确认本地分支修改与最近五条提交记录");
-        add("暂存并提交所有更改", "git add -A &amp;&amp; git commit -m \"update\"", "开发工具", "一键暂存所有修改并生成提交记录");
-        add("强制撤销本地所有未提交改动", "git restore . &amp;&amp; git clean -fd", "开发工具", "危险：彻底抛弃所有未提交的修改与新增文件");
+        add("查看 Git 当前状态与精简日志", "git status -s && git log -n 5 --oneline", "开发工具", "快速确认本地分支修改与最近五条提交记录");
+        add("暂存并提交所有更改", "git add -A && git commit -m \"update\"", "开发工具", "一键暂存所有修改并生成提交记录");
+        add("强制撤销本地所有未提交改动", "git restore . && git clean -fd", "开发工具", "危险：彻底抛弃所有未提交的修改与新增文件");
         add("启动本地 Python HTTP 文件服务器", "python3 -m http.server 8080", "开发工具", "在 8080 端口启动轻量级局域网文件共享站点");
         add("查看环境变量与 PATH 路径", "echo -e \"PATH: $PATH\\nHOME: $HOME\\nUSER: $USER\"", "开发工具", "检查当前终端环境的基础路径与运行配置");
     }

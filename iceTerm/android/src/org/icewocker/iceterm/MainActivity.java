@@ -479,14 +479,14 @@ public class MainActivity extends Activity {
         listView.setLayoutParams(lp);
         layout.addView(listView);
 
-        final List<CommandToolbox.CommandItem>[] currentItems = new List[]{CommandToolbox.getItems()};
+        final List<CommandToolbox.CommandItem> currentItems = new ArrayList<CommandToolbox.CommandItem>(CommandToolbox.getItems());
         final ArrayAdapter<String> listAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_2, android.R.id.text1, new ArrayList<String>()) {
             @Override
             public View getView(int position, View convertView, ViewGroup parent) {
                 View view = super.getView(position, convertView, parent);
                 TextView text1 = (TextView) view.findViewById(android.R.id.text1);
                 TextView text2 = (TextView) view.findViewById(android.R.id.text2);
-                CommandToolbox.CommandItem item = currentItems[0].get(position);
+                CommandToolbox.CommandItem item = currentItems.get(position);
                 text1.setText(item.name + " (" + item.category + ")");
                 text1.setTextColor(Color.parseColor("#58A6FF"));
                 text2.setText(item.command + "\n" + item.description);
@@ -496,7 +496,7 @@ public class MainActivity extends Activity {
 
             @Override
             public int getCount() {
-                return currentItems[0].size();
+                return currentItems.size();
             }
         };
         listView.setAdapter(listAdapter);
@@ -505,7 +505,8 @@ public class MainActivity extends Activity {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 String cat = (String) spinner.getSelectedItem();
-                currentItems[0] = CommandToolbox.filterByCategory(cat);
+                currentItems.clear();
+                currentItems.addAll(CommandToolbox.filterByCategory(cat));
                 listAdapter.notifyDataSetChanged();
             }
 

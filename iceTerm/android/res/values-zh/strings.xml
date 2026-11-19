@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">冰端 iceTerm</string>
+    <string name="welcome_msg">[iceTerm 冰端] 终端开发工作站核心 v1.1.0\n专为 Android 与 Linux 设计的高性能无依赖环境\n输入 \'help\' 或点击 [工具箱] 查看 150+ 预置运维与开发指令。\n----------------------------------------------------\n</string>
+    <string name="btn_ai">AI 副驾驶</string>
+    <string name="btn_radar">端口雷达</string>
+    <string name="btn_toolbox">工具箱</string>
+    <string name="btn_sys">系统监控</string>
+    <string name="btn_clear">清屏</string>
+    <string name="btn_new_tab">+ 标签</string>
+    <string name="btn_settings">设置</string>
+    <string name="hint_input">输入 Shell 命令或使用底部快捷键...</string>
+    <string name="btn_run">执行</string>
+</resources>
