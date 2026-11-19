@@ -1,7 +1,7 @@
 # iceTerm
 
-> High-performance terminal workstation for Android (Termux) & Linux.
-> Zero third-party dependencies, single-file core, offline-first, native Android APK build.
+> High-performance terminal workstation & Android APK for Android (Termux) & Linux.
+> Zero third-party dependencies, single-file core, offline-first, native Chinese localization, and premier coding model routing.
 
 [![Android CI & Release](https://github.com/ice-wocker/iceTerm/actions/workflows/android-release.yml/badge.svg)](https://github.com/ice-wocker/iceTerm/actions)
 [![Python 3.8+](https://img.shields.io/badge/Python-3.8%2B-blue.svg)](https://www.python.org/)
@@ -12,120 +12,74 @@
 
 ## Overview
 
-iceTerm is designed to address fundamental limitations in mobile and lightweight Linux development environments:
+iceTerm is engineered for mobile developers and Unix power users requiring a high-density, low-latency, and dependency-free terminal environment. Version 1.1.0 delivers a comprehensive overhaul: full native Chinese localization, multi-tab session management, an ANSI 16/256-color rendering engine, a 150+ command developer toolbox, hardware/kernel telemetry, socket inode resolution, and multi-model AI coding copilot integration.
 
-1. **Dependency bloat**: Modern developer tools require extensive Node/Python runtimes and complex toolchains. iceTerm implements PTY multiplexing, port scanning, and AI routing using only the standard library.
-2. **Android process restrictions**: Android 12+ enforces a 32-child-process limit (Phantom Process Killer), causing background compilation tasks to be terminated unexpectedly.
-3. **Network opacity**: Services started locally on mobile lack visibility into LAN IP allocation and port bindings.
-4. **Mobile input friction**: Touch keyboards lack dedicated modifiers (`Ctrl`, `Alt`, `ESC`, `TAB`, `|`, `~`).
-5. **AI Routing for Code**: Direct integration and intelligent routing to top coding models (DeepSeek-Coder, Qwen2.5-Coder, Claude 3.5 Sonnet) combined with a local zero-latency heuristic engine.
+### Core Problems Addressed
+
+1. **Terminal Lag & Buffer Bloat**: Standard mobile terminal wrappers suffer from unbounded TextView memory growth and ANSI escape code corruption. iceTerm incorporates a dedicated ANSI parser and a circular ring buffer.
+2. **Native Chinese Localization**: Full Chinese UI, localized command explanations, Chinese heuristic AI intent matching, and UTF-8 environment initialization (`LANG=zh_CN.UTF-8`).
+3. **Android Phantom Process Killer**: Android 12+ strictly limits child processes to 32, killing background compilation and node/python tasks. iceTerm features real-time phantom process detection and one-click ADB/Shizuku remediation.
+4. **Mobile Input Obstacles**: Touchscreens lack developer modifiers. iceTerm provides a dedicated virtual keypad with `^C`, `^D`, `TAB`, `ESC`, `|`, `~`, `UP`, and `DOWN`.
+5. **AI Coding Model Routing**: Intelligent routing configured for state-of-the-art coding models (DeepSeek-Coder, Qwen2.5-Coder 32B, GLM-4, Moonshot, Ollama) alongside 50+ offline Chinese heuristic rules.
 
 ---
 
 ## Feature Matrix
 
-| Subsystem | Implementation | Capability |
+| Subsystem | Architecture / Implementation | Capability |
 | :--- | :--- | :--- |
-| **PTY Multiplexer** | Pure POSIX PTY (`pty`, `termios`, `select`) | Multi-tab session management without tmux dependency |
-| **AI Copilot** | Dual-engine: Offline heuristic + OpenAI protocol | Intelligent routing to premier coding models (`deepseek-coder`, `qwen2.5-coder`) |
-| **Security Interceptor** | Pattern-based AST matching | Blocks destructive commands (`rm -rf /`, raw disk overwrite, fork bombs) |
-| **Error Diagnostic** | Exit code and stack trace analysis | Automated diagnosis with actionable fix commands |
-| **Port Radar** | Pure `/proc/net/tcp` parser | Real-time socket discovery and LAN preview URLs without `netstat`/`lsof` |
-| **Phantom Process Guard**| Android system setting bridge | Instructions and script for disabling 32-process limit via Shizuku/ADB |
-| **Web Terminal** | Built-in HTTP server | Touch-optimized remote web terminal with virtual modifier keys |
-| **Android APK** | Zero-Gradle native build pipeline | Single-dex APK under 100KB compiled directly via Android SDK build-tools |
+| **Localization** | `res/values-zh-rCN/strings.xml` | Native Simplified Chinese interface, dialogues, command guides, and alerts |
+| **Session Multiplexer** | `SessionManager.java` & POSIX PTY | Concurrent multi-tab terminal management with dynamic add, switch, and close |
+| **Terminal Buffer** | `TerminalBuffer.java` (Ring Buffer) | High-performance circular scrollback preventing UI memory exhaustion |
+| **ANSI Engine** | `AnsiParser.java` (16 & 256 Colors) | ANSI SGR color, background, bold, underline, and RGB rendering |
+| **Command Toolbox** | `CommandToolbox.java` (150+ Commands) | Categorized Linux & Android recipes with Chinese search and instant execution |
+| **System Telemetry** | `SystemMonitor.java` | Real-time monitoring of CPU, RAM, thermal sensors, battery, and Phantom Process limits |
+| **Port Radar** | `PortRadar.java` (`/proc/net/tcp`) | Active socket discovery mapping inode numbers to PIDs, process names, and LAN endpoints |
+| **AI Copilot** | `AICopilot.java` (Dual-Engine) | Multi-model routing (DeepSeek, Qwen, GLM, Moonshot, Ollama) + 50+ offline Chinese regex patterns |
+| **Security Guard** | `ShellSession.java` | Proactive interception of destructive commands (`rm -rf /`, raw disk overwrite, fork bombs) |
+| **Themes & Display** | SharedPreferences & Palette Engine | Multiple themes (Matrix Green, Cyber Cyan, Solarized Dark, Monochrome) + font scaling |
+| **Android APK** | Zero-Gradle Pure SDK Toolchain | Single-dex APK under 100KB compiled directly via `aapt2`, `d8`, `zipalign`, and `apksigner` |
 
 ---
 
-## Installation & Quick Start
+## Command Toolbox Categories (150+ Presets)
 
-### 1. Terminal CLI / Workstation (Android Termux & Linux)
+The built-in Command Toolbox organizes essential developer workflows with Chinese explanations:
 
-One-line installation:
-```bash
-curl -fsSL https://raw.githubusercontent.com/ice-wocker/iceTerm/main/install.sh | bash
-```
-
-Or run directly with Python:
-```bash
-python3 ice_term.py
-```
-
-### 2. Android APK Package
-
-The project includes a standalone Android application under `android/`:
-- **Pre-built release**: Available under GitHub Releases (`iceterm.apk`).
-- **CI Automated Build**: Compiles directly via GitHub Actions with zero Gradle overhead.
-- **Local compilation**:
-  ```bash
-  cd android
-  ./build.sh
-  ```
+1. **系统信息与监控 (System & Telemetry)**: CPU core details, load averages, memory distribution, thermal sensor readings, disk partition utilization, and kernel dmesg inspection.
+2. **网络与端口诊断 (Networking & Ports)**: Socket discovery, IP routing, ping latency, DNS resolution, cURL header tests, traceroute, and packet diagnostics.
+3. **进程与后台管理 (Process & Task Control)**: Process trees (`pstree`), resource consumers (`top`/`ps`), signal delivery (`kill`/`killall`), background job management, and Android Phantom Process Killer verification.
+4. **文件检索与管理 (Filesystem & Storage)**: Fast pattern search (`find`), regex line search (`grep`), disk space hogs (`du -sh *`), file hashing (`sha256sum`), and permission manipulation (`chmod`/`chown`).
+5. **Git 与版本控制 (Git Operations)**: Commit graph log, stash management, branch switching, dirty tree diff, tag management, and clean submodule synchronization.
+6. **开发者环境 (Developer Toolchains)**: Node.js, Python, Go, Rust, and C/C++ environment checks, package installations, and dependency diagnostics.
+7. **Android 与 Termux 专用 (Android & Termux Integration)**: Package manager (`pm list packages`), Termux API battery/clipboard/vibrate, Android properties (`getprop`), and Shizuku bridge triggers.
 
 ---
 
-## Key Bindings (Interactive Multiplexer)
+## AI Copilot Coding Model Routing
 
-Default prefix is `Ctrl+A`:
+The AI Copilot supports direct zero-latency offline heuristic parsing as well as online routing to premier code intelligence models:
 
-- `Ctrl+A c` : Create new tab
-- `Ctrl+A 1..9` : Switch to tab N
-- `Ctrl+A n` / `p` : Next / Previous tab
-- `Ctrl+A x` : Close active tab
-- `Ctrl+A a` : AI Copilot prompt
-- `Ctrl+A s` : Port radar and system telemetry
-- `Ctrl+A Ctrl+A` : Send literal `Ctrl+A` to shell
-- `Ctrl+A d` : Terminate session
+### Supported Providers & Models
 
----
+- **DeepSeek**: `deepseek-coder`, `deepseek-chat`
+- **Alibaba Cloud / Qwen**: `qwen2.5-coder-32b-instruct`, `qwen2.5-coder-7b-instruct`
+- **Zhipu AI (GLM)**: `glm-4-plus`, `glm-4`
+- **Moonshot AI (Kimi)**: `moonshot-v1-8k`, `moonshot-v1-32k`
+- **Ollama / Local LLM**: Direct LAN connection to locally hosted models (e.g., `http://192.168.1.100:11434/v1`)
 
-## CLI Reference
+### Offline Chinese Natural Language Heuristic Engine
 
-### AI Copilot (`iceterm ai`)
-Queries are routed to high-parameter coding models or matched instantly by the local offline engine:
+Without network connectivity or API tokens, the offline engine matches Chinese natural language queries to shell commands:
 
-```bash
-# Instant offline heuristic translation
-iceterm ai "find files larger than 100MB"
-# Output: find . -type f -size +100M -exec ls -lh {} +
-
-iceterm ai "kill process on port 8080"
-# Output: fuser -k 8080/tcp
-```
-
-Configuring remote/local coding endpoints:
-```bash
-export OPENAI_BASE_URL="https://api.deepseek.com/v1"
-export OPENAI_API_KEY="your-api-key"
-export OPENAI_MODEL="deepseek-coder"
-```
-
-### Automated Error Diagnosis (`iceterm explain`)
-```bash
-# Run command with proactive failure analysis
-iceterm run make build
-
-# Or pipe output logs
-cat error.log | iceterm explain
-```
-
-### Port & Interface Radar (`iceterm radar`)
-```bash
-iceterm radar
-```
-Scans `/proc/net/tcp` and maps active listeners to external access URLs.
-
-### Mobile Web Terminal (`iceterm serve`)
-```bash
-iceterm serve --port 7681
-```
-Spins up a lightweight browser-based terminal with virtual soft-keys for mobile devices.
-
-### Phantom Process Guard (`iceterm fix-phantom`)
-```bash
-iceterm fix-phantom
-```
-Generates Shizuku and ADB commands to remove Android 12+ process throttling.
+| Natural Language Query | Generated Shell Command |
+| :--- | :--- |
+| `查找大于100M的文件` | `find . -type f -size +100M -exec ls -lh {} +` |
+| `释放端口 8080` / `杀死端口 8080` | `fuser -k 8080/tcp || kill -9 $(lsof -t -i:8080)` |
+| `解除安卓进程限制` | `device_config put activity_manager max_phantom_processes 2147483647` |
+| `查找包含 error 的日志` | `grep -rnI --color=auto "error" .` |
+| `解压 backup.tar.gz` | `tar -zxvf backup.tar.gz` |
+| `查看内存占用最高进程` | `ps aux --sort=-%mem | head -n 10` |
 
 ---
 
@@ -138,23 +92,44 @@ android/
 ├── res/
 │   ├── drawable/ic_launcher.xml
 │   ├── layout/activity_main.xml
-│   └── values/{colors,strings,styles}.xml
+│   ├── values/
+│   │   ├── colors.xml       # Terminal palettes & tab colors
+│   │   ├── strings.xml      # Default English strings
+│   │   └── styles.xml       # Dark developer theme
+│   └── values-zh-rCN/
+│       └── strings.xml      # Native Simplified Chinese strings
 └── src/org/icewocker/iceterm/
-    ├── MainActivity.java    # Terminal UI, extra keys bar, history
-    ├── ShellSession.java    # Interactive shell process management & safety filter
-    ├── AICopilot.java       # Router for coding models & offline regex engine
-    └── PortRadar.java       # Local socket parser (/proc/net/tcp)
+    ├── MainActivity.java    # Multi-tab UI, toolbar, dialogs, virtual keys, preferences
+    ├── SessionManager.java  # Multi-session lifecycle and output routing
+    ├── ShellSession.java    # Interactive shell process, UTF-8 locale, safety guard
+    ├── TerminalBuffer.java  # High-efficiency circular ring scrollback buffer
+    ├── AnsiParser.java      # ANSI 16/256-color & formatting parser to Spannable
+    ├── CommandToolbox.java  # 150+ categorized developer commands with Chinese guides
+    ├── SystemMonitor.java   # Telemetry for CPU, RAM, thermal sensors, Phantom Process
+    ├── PortRadar.java       # Local socket discovery (/proc/net/tcp) with inode-to-PID
+    └── AICopilot.java       # Premier coding model routing & offline heuristic engine
 ```
 
 ---
 
-## Continuous Integration & Release
+## Building and Releasing
 
-GitHub Actions pipeline (`.github/workflows/android-release.yml`):
-- Runs core unit tests without external packages.
-- Compiles `iceterm.apk` on `ubuntu-latest` via SDK tools.
-- Signs and verifies APK with `apksigner`.
-- Automatically publishes release assets when a version tag (`v*`) is pushed.
+### Zero-Gradle Pure SDK Build
+
+Builds in seconds without Gradle or external build systems:
+
+```bash
+cd android
+./build.sh
+```
+
+### GitHub Actions CI/CD Pipeline
+
+The `.github/workflows/android-release.yml` workflow:
+1. Executes unit tests with zero third-party dependencies.
+2. Compiles `iceterm.apk` on `ubuntu-latest` using JDK 17 and Android build-tools 35.
+3. Signs and verifies the APK using `apksigner`.
+4. Publishes `iceterm.apk` as a release asset whenever a version tag (`v*`) is pushed.
 
 ---
 

@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
+import java.util.Map;
 import java.util.regex.Pattern;
 
 public class ShellSession {
@@ -39,8 +40,16 @@ public class ShellSession {
             String shell = new File("/system/bin/sh").exists() ? "/system/bin/sh" : "/bin/sh";
             ProcessBuilder pb = new ProcessBuilder(shell);
             pb.redirectErrorStream(true);
-            pb.environment().put("TERM", "xterm-256color");
-            pb.environment().put("PATH", "/system/bin:/system/xbin:" + System.getenv("PATH"));
+
+            Map<String, String> env = pb.environment();
+            env.put("TERM", "xterm-256color");
+            env.put("LANG", "zh_CN.UTF-8");
+            env.put("LC_ALL", "zh_CN.UTF-8");
+
+            // Expand PATH to include Termux and Android system paths
+            String existingPath = System.getenv("PATH");
+            String extraPaths = "/data/data/com.termux/files/usr/bin:/system/bin:/system/xbin:/vendor/bin:/sbin";
+            env.put("PATH", extraPaths + (existingPath != null ? ":" + existingPath : ""));
 
             process = pb.start();
             stdin = process.getOutputStream();
@@ -71,7 +80,7 @@ public class ShellSession {
 
         } catch (Exception e) {
             if (listener != null) {
-                listener.onOutput("[ERROR] Failed to spawn shell: " + e.getMessage() + "\n");
+                listener.onOutput("[ERROR] 创建终端子进程失败: " + e.getMessage() + "\n");
             }
         }
     }
@@ -81,7 +90,7 @@ public class ShellSession {
         String trimmed = cmd.trim();
         for (Pattern p : DANGEROUS_PATTERNS) {
             if (p.matcher(trimmed).find()) {
-                return "[BLOCKED] High-risk destructive command intercepted: " + trimmed;
+                return "[安全防护拦截] 检测到高危破坏性指令已被阻止: " + trimmed;
             }
         }
         return null;
@@ -95,14 +104,16 @@ public class ShellSession {
             stdin.write(cmd.getBytes(StandardCharsets.UTF_8));
             stdin.flush();
         } catch (Exception e) {
-            if (listener != null) listener.onOutput("[ERROR] Write failed: " + e.getMessage() + "\n");
+            if (listener != null) listener.onOutput("[ERROR] 命令写入失败: " + e.getMessage() + "\n");
         }
     }
 
     public synchronized void destroy() {
         isRunning = false;
         if (process != null) {
-            process.destroy();
+            try {
+                process.destroy();
+            } catch (Exception ignored) {}
             process = null;
         }
     }

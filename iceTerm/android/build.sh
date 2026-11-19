@@ -91,5 +91,8 @@ fi
   --out iceterm.apk "$WORK/aligned.apk"
 "$APKSIGNER" verify iceterm.apk > /dev/null
 
+cp iceterm.apk ../../iceterm.apk 2>/dev/null || true
+cp iceterm.apk ../iceterm.apk 2>/dev/null || true
+
 SIZE=$(stat -c%s iceterm.apk 2>/dev/null || stat -f%z iceterm.apk)
 echo "SUCCESS: Produced iceterm.apk ($SIZE bytes / $((SIZE/1024)) KB)"

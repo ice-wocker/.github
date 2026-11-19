@@ -9,21 +9,29 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 public class PortRadar {
 
     public static class PortEntry {
+        public final String proto;
         public final String ip;
         public final int port;
         public final boolean isLoopback;
+        public final String inode;
+        public String processName = "-";
+        public int pid = -1;
 
-        public PortEntry(String ip, int port, boolean isLoopback) {
+        public PortEntry(String proto, String ip, int port, boolean isLoopback, String inode) {
+            this.proto = proto;
             this.ip = ip;
             this.port = port;
             this.isLoopback = isLoopback;
+            this.inode = inode;
         }
     }
 
@@ -41,7 +49,7 @@ public class PortRadar {
                         InetAddress addr = addrs.nextElement();
                         String host = addr.getHostAddress();
                         if (host != null && host.indexOf(':') < 0 && !host.startsWith("127.")) {
-                            list.add(host);
+                            list.add(host + " (" + nif.getName() + ")");
                         }
                     }
                 }
@@ -58,15 +66,17 @@ public class PortRadar {
         for (String p : procPaths) {
             File f = new File(p);
             if (!f.exists() || !f.canRead()) continue;
+            String proto = p.endsWith("6") ? "TCP6" : "TCP";
             BufferedReader reader = null;
             try {
                 reader = new BufferedReader(new FileReader(f));
                 String line = reader.readLine(); // skip header
                 while ((line = reader.readLine()) != null) {
                     String[] parts = line.trim().split("\\s+");
-                    if (parts.length >= 4) {
+                    if (parts.length >= 10) {
                         String local = parts[1];
                         String state = parts[3];
+                        String inode = parts[9];
                         // 0A == TCP_LISTEN
                         if ("0A".equalsIgnoreCase(state)) {
                             String[] hp = local.split(":");
@@ -75,8 +85,8 @@ public class PortRadar {
                                 if (!seen.contains(port)) {
                                     seen.add(port);
                                     String ip = parseIp(hp[0]);
-                                    boolean loopback = "127.0.0.1".equals(ip) || "0.0.0.0".equals(ip);
-                                    results.add(new PortEntry(ip, port, loopback));
+                                    boolean loopback = "127.0.0.1".equals(ip) || "0.0.0.0".equals(ip) || "::".equals(ip);
+                                    results.add(new PortEntry(proto, ip, port, loopback, inode));
                                 }
                             }
                         }
@@ -90,6 +100,9 @@ public class PortRadar {
             }
         }
 
+        // Try mapping inode to process name
+        mapProcessesToInodes(results);
+
         Collections.sort(results, new Comparator<PortEntry>() {
             @Override
             public int compare(PortEntry a, PortEntry b) {
@@ -97,6 +110,60 @@ public class PortRadar {
             }
         });
         return results;
+    }
+
+    private static void mapProcessesToInodes(List<PortEntry> entries) {
+        if (entries.isEmpty()) return;
+        Map<String, PortEntry> inodeMap = new HashMap<String, PortEntry>();
+        for (PortEntry pe : entries) {
+            if (pe.inode != null && !"0".equals(pe.inode)) {
+                inodeMap.put(pe.inode, pe);
+            }
+        }
+
+        File procDir = new File("/proc");
+        File[] pids = procDir.listFiles();
+        if (pids == null) return;
+
+        for (File pidDir : pids) {
+            if (!pidDir.isDirectory()) continue;
+            String name = pidDir.getName();
+            if (!Character.isDigit(name.charAt(0))) continue;
+
+            File fdDir = new File(pidDir, "fd");
+            File[] fds = fdDir.listFiles();
+            if (fds == null) continue;
+
+            for (File fd : fds) {
+                try {
+                    String target = fd.getCanonicalPath();
+                    if (target != null && target.startsWith("socket:[")) {
+                        String inode = target.substring(8, target.length() - 1);
+                        if (inodeMap.containsKey(inode)) {
+                            PortEntry pe = inodeMap.get(inode);
+                            pe.pid = Integer.parseInt(name);
+                            pe.processName = getCmdline(pidDir);
+                        }
+                    }
+                } catch (Exception ignored) {}
+            }
+        }
+    }
+
+    private static String getCmdline(File pidDir) {
+        File cmdFile = new File(pidDir, "cmdline");
+        if (cmdFile.exists()) {
+            try (BufferedReader br = new BufferedReader(new FileReader(cmdFile))) {
+                String cmd = br.readLine();
+                if (cmd != null && !cmd.isEmpty()) {
+                    String clean = cmd.replace('\0', ' ').trim();
+                    String[] parts = clean.split("\\s+");
+                    String binary = new File(parts[0]).getName();
+                    return binary;
+                }
+            } catch (Exception ignored) {}
+        }
+        return pidDir.getName();
     }
 
     private static String parseIp(String hex) {
